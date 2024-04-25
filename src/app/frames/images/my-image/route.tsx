@@ -123,7 +123,31 @@ export async function GET(req: NextRequest) {
     return imageResponse;
   }
 
-  const [castDetails] = await Promise.all([neynarCastDetails(dare.warpcastUrl as string)])
+  if (!dare.warpcastUrl) {
+    // TODO: Error on invalid id
+    const imageResponse = new ImageResponse(
+      (
+        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
+          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
+          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
+            <p tw="flex-grow" style={bold}>Warpcast URL not configured</p>
+          </div>
+        </div>
+      ),
+      { 
+        width: 1146, 
+        height: 600,
+        fonts: imgOpts.fonts,
+      }
+    );
+  
+    // Set the cache control headers to ensure the image is not cached
+    imageResponse.headers.set("Cache-Control", "public, max-age=0");
+  
+    return imageResponse;
+  }
+
+  const [castDetails] = await Promise.all([neynarCastDetails(dare.warpcastUrl)])
   const goal = dare.engagementTarget;
   const backers = castDetails.likeCount + castDetails.recastCount;
   const fraction = Math.min(1, backers / goal);

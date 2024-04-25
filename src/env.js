@@ -35,6 +35,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_HOST_URL: z.string(),
   },
 
   /**
@@ -50,6 +51,7 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     HUB_GRPC_URL: process.env.HUB_GRPC_URL,
     NEYNAR_API_KEY: process.env.NEYNAR_API_KEY,
+    NEXT_PUBLIC_HOST_URL: process.env.NEXT_PUBLIC_HOST_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
