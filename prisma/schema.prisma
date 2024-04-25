@@ -17,7 +17,7 @@ datasource db {
 model Dare {
   id               Int    @id @default(autoincrement())
   authorFid        Int
-  castHash         String?
+  warpcastUrl      String?
   title            String
   img              String
   engagementTarget Int

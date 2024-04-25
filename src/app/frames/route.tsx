@@ -16,9 +16,14 @@ const frames = createFrames({
 });
 
 const handleRequest = frames(async (ctx) => {
+  let id = NaN
+  const idParam = ctx.searchParams.id
+  if (typeof idParam === "string") {
+    id = parseInt(idParam, 10);
+  }
   const randomInt = Math.floor(Math.random() * 1000000);
   return {
-    image: `/images/my-image?randomInt=${randomInt}`,
+    image: `/images/my-image?randomInt=${randomInt}&id=${id}`,
   };
 });
 
