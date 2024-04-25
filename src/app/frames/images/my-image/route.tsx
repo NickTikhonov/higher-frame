@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
@@ -31,19 +32,6 @@ const sfFont = getFontArrayBuffer()
 const sfFontBold = getBoldFontArrayBuffer()
  
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const searchParams = new URLSearchParams(url.search);
-
-  const randomInt = searchParams.get("randomInt"); 
-
-  let id = NaN
-  const idParam = searchParams.get("id");
-  if (typeof idParam === "string") {
-    id = parseInt(idParam, 10);
-  }
-
-  console.log("GET /images/my-image", randomInt, id)
-
   const [sfRoundedFont, sfRoundedBoldFont] = await Promise.all([
     sfFont,
     sfFontBold
@@ -69,6 +57,19 @@ export async function GET(req: NextRequest) {
   const bold = {
     fontFamily: 'sf-rounded-bold',
   }
+
+  try {
+  const url = new URL(req.url);
+  const searchParams = new URLSearchParams(url.search);
+  const randomInt = searchParams.get("randomInt"); 
+
+  let id = NaN
+  const idParam = searchParams.get("id");
+  if (typeof idParam === "string") {
+    id = parseInt(idParam, 10);
+  }
+
+  console.log("GET /images/my-image", randomInt, id)
 
   if (isNaN(id)) {
     // TODO: Error on invalid id
@@ -196,4 +197,28 @@ export async function GET(req: NextRequest) {
   imageResponse.headers.set("Cache-Control", "public, max-age=60");
  
   return imageResponse;
+  } catch(e: any) {
+    console.log(e)
+    // TODO: Error on invalid id
+    const imageResponse = new ImageResponse(
+      (
+        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
+          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
+          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
+            <p tw="flex-grow" style={bold}>Internal error</p>
+          </div>
+        </div>
+      ),
+      { 
+        width: 1146, 
+        height: 600,
+        fonts: imgOpts.fonts,
+      }
+    );
+  
+    // Set the cache control headers to ensure the image is not cached
+    imageResponse.headers.set("Cache-Control", "public, max-age=0");
+  
+    return imageResponse;
+  }
 }
