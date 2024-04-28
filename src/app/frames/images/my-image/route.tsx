@@ -2,34 +2,12 @@
 import { type NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
-import fs from 'fs/promises';
-import path from 'path';
-import { appUrl } from "./lib";
+import { appUrl, getFontBuffer } from "./lib";
 import { db } from "~/server/db";
 import { neynarCastDetails } from "~/lib/neynar";
 
-async function getFontArrayBuffer() {
-  const sfFontPath = path.resolve(process.cwd(), 'public/assets/sfrounded.ttf');
-  const sfFontBuffer = await fs.readFile(sfFontPath);
-
-  // Convert the Node.js Buffer to an ArrayBuffer
-  const sfFontArrayBuffer = Uint8Array.from(sfFontBuffer).buffer;
-
-  return sfFontArrayBuffer;
-}
-
-async function getBoldFontArrayBuffer() {
-  const sfFontPath = path.resolve(process.cwd(), 'public/assets/sfrounded-bold.ttf');
-  const sfFontBuffer = await fs.readFile(sfFontPath);
-
-  // Convert the Node.js Buffer to an ArrayBuffer
-  const sfFontArrayBuffer = Uint8Array.from(sfFontBuffer).buffer;
-
-  return sfFontArrayBuffer;
-}
-
-const sfFont = getFontArrayBuffer()
-const sfFontBold = getBoldFontArrayBuffer()
+const sfFont = getFontBuffer('public/assets/sfrounded.ttf')
+const sfFontBold = getFontBuffer('public/assets/sfrounded-bold.ttf')
  
 export async function GET(req: NextRequest) {
   const [sfRoundedFont, sfRoundedBoldFont] = await Promise.all([
