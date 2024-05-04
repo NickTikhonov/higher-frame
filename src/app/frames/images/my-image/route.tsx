@@ -46,6 +46,8 @@ export async function GET(req: NextRequest) {
     where: { id: imgId },
   })
 
+  console.log("Serving image for id", imgId, img)
+
   if (!img) {
     const imageResponse = new ImageResponse(
       (

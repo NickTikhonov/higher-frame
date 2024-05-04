@@ -38,6 +38,8 @@ const handleRequest = frames(async (ctx) => {
   const imgUrl = ctx.message?.inputText
   const validImgUrl = isValidUrl(imgUrl ?? "")
 
+  console.log("Serving frame for id", id, "gen", gen, "imgUrl", imgUrl, "validImgUrl", validImgUrl)
+
   if (!gen) {
     return {
       image: `/images/my-image?randomInt=${Math.random()}&imgId=${id}`,

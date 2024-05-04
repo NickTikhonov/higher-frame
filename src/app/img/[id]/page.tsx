@@ -1,5 +1,6 @@
 import { fetchMetadata } from "frames.js/next";
 import { type NextServerPageProps } from "frames.js/next/types";
+import { appUrl } from "~/app/frames/images/my-image/lib";
  
 export async function generateMetadata({ params }: NextServerPageProps) {
   let dareId = NaN
@@ -7,6 +8,8 @@ export async function generateMetadata({ params }: NextServerPageProps) {
   if (typeof id === "string") {
     dareId = parseInt(id, 10);
   }
+
+  console.log("Generating frame for id", dareId)
 
   return {
     title: "My Page",
@@ -17,9 +20,7 @@ export async function generateMetadata({ params }: NextServerPageProps) {
         // provide a full URL to your /frames endpoint
         new URL(
           `/frames?id=${dareId}`,
-          process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : "http://localhost:3000"
+          appUrl()
         )
       )),
     },
