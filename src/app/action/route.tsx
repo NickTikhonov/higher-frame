@@ -37,11 +37,13 @@ type MessagePayload = {
 
 export async function GET() {
   return NextResponse.json({
-    "name": "Generate ↑ media",
-    "icon": "lightbulb",
-    "description": "Generate higher media from cast",
+    "name": "Make Higher",
+    "icon": "flame",
+    "description": "Turn any image into a higher image.",
+    "aboutUrl": "https://ntik.me",
+    "postUrl": "https://frames.ntik.me/action",
     "action": {
-      "type": "post",
+    "type": "post"
     }
   })
 }
