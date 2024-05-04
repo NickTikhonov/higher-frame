@@ -42,7 +42,7 @@ const handleRequest = frames(async (ctx) => {
 
   if (!gen) {
     return {
-      image: `/images/my-image?randomInt=${Math.random()}&imgId=${id}`,
+      image: `/images/my-image?imgId=${id}`,
       buttons: [
         <Button action="link" target={`https://warpcast.com/~/compose?text=higher&embeds[]=${appUrl()}/img/${id}`}>
           Share
@@ -83,7 +83,7 @@ const handleRequest = frames(async (ctx) => {
     })
 
     return {
-      image: `/images/my-image?randomInt=${Math.random()}&imgId=${newImg.id}`,
+      image: `/images/my-image?imgId=${newImg.id}`,
       buttons: [
         <Button action="link" target={`https://warpcast.com/~/compose?text=higher&embeds[]=${appUrl()}/img/${newImg.id}`}>
           Share
