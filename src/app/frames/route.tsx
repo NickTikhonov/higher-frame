@@ -1,5 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable react/jsx-key */
 import { farcasterHubContext } from "frames.js/middleware";
-import { createFrames } from "frames.js/next";
+import { Button, createFrames } from "frames.js/next";
+import { db } from "~/server/db";
+import { appUrl } from "./images/my-image/lib";
 
 const frames = createFrames({
   basePath: '/frames',
@@ -15,16 +21,80 @@ const frames = createFrames({
   ],
 });
 
-const handleRequest = frames(async (ctx) => {
-  let id = NaN
-  const idParam = ctx.searchParams.id
-  if (typeof idParam === "string") {
-    id = parseInt(idParam, 10);
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
   }
-  const randomInt = Math.floor(Math.random() * 1000000);
-  return {
-    image: `/images/my-image?randomInt=${randomInt}&id=${id}`,
-  };
+};
+
+const handleRequest = frames(async (ctx) => {
+  console.log(ctx.searchParams)
+  const idParam = ctx.searchParams.id
+  const id = idParam ? parseInt(idParam, 10) : -1
+  const gen = ctx.searchParams.gen ?? false
+  const imgUrl = ctx.message?.inputText
+  const validImgUrl = isValidUrl(imgUrl ?? "")
+
+  if (!gen) {
+    return {
+      image: `/images/my-image?randomInt=${Math.random()}&imgId=${id}`,
+      buttons: [
+        <Button action="post">
+          Share
+        </Button>,
+        <Button action="post" target={{ query: { gen: 'y' }}}>
+          Generate
+        </Button>,
+      ],
+      imageOptions: {
+        aspectRatio: "1:1",
+      }
+    };
+  } else {
+    if (!validImgUrl) {
+      return {
+        image: (
+          <div tw="w-full h-full flex flex-col bg-black items-center justify-center text-white">
+            Enter an image URL to generate
+          </div>
+        ),
+        buttons: [
+          <Button action="post" target={{ query: { gen: 'y' }}}>
+            Submit
+          </Button>,
+        ],
+        textInput: "Enter Image URL",
+        imageOptions: {
+          aspectRatio: "1:1",
+        }
+      };
+    }
+
+    const newImg = await db.higherImg.create({
+      data: {
+        img: imgUrl!,
+        authorFid: ctx.message?.requesterFid ?? 0
+      }
+    })
+
+    return {
+      image: `/images/my-image?randomInt=${Math.random()}&imgId=${newImg.id}`,
+      buttons: [
+        <Button action="link" target={`https://warpcast.com/~/compose?text=higher&embeds[]=${appUrl()}/img/${newImg.id}`}>
+          Share
+        </Button>,
+        <Button action="post" target={{query: {gen: 'y'}}}>
+          Generate Another
+        </Button>,
+      ],
+      imageOptions: {
+        aspectRatio: "1:1",
+      }
+    };
+  }
 });
 
 export const GET = handleRequest;

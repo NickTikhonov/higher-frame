@@ -23,6 +23,13 @@ model Dare {
   engagementTarget Int
 }
 
+model HigherImg {
+  id               Int      @id @default(autoincrement())
+  authorFid        Int
+  img              String
+  createdAt        DateTime @default(now())
+}
+
 model Post {
   id        Int      @id @default(autoincrement())
   name      String

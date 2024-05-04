@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type NextRequest } from "next/server";
 import { ImageResponse } from "@vercel/og";
 
 import { appUrl, getFontBuffer } from "./lib";
 import { db } from "~/server/db";
-import { neynarCastDetails } from "~/lib/neynar";
 
 const sfFont = getFontBuffer('public/assets/sfrounded.ttf')
 const sfFontBold = getFontBuffer('public/assets/sfrounded-bold.ttf')
@@ -36,167 +38,50 @@ export async function GET(req: NextRequest) {
     fontFamily: 'sf-rounded-bold',
   }
 
-  try {
   const url = new URL(req.url);
   const searchParams = new URLSearchParams(url.search);
-  const randomInt = searchParams.get("randomInt"); 
-
-  let id = NaN
-  const idParam = searchParams.get("id");
-  if (typeof idParam === "string") {
-    id = parseInt(idParam, 10);
-  }
-
-  console.log("GET /images/my-image", randomInt, id)
-
-  if (isNaN(id)) {
-    // TODO: Error on invalid id
-    const imageResponse = new ImageResponse(
-      (
-        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
-          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
-          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
-            <p tw="flex-grow" style={bold}>Invalid dare</p>
-          </div>
-        </div>
-      ),
-      { 
-        width: 1146, 
-        height: 600,
-        fonts: imgOpts.fonts,
-      }
-    );
-  
-    // Set the cache control headers to ensure the image is not cached
-    imageResponse.headers.set("Cache-Control", "public, max-age=0");
-  
-    return imageResponse;
-  }
-
-  const dare = await db.dare.findFirst({
-    where: {
-      id: id,
-    }
+  const imgIdParam = searchParams.get("imgId"); 
+  const imgId = imgIdParam ? parseInt(imgIdParam, 10) : -1;
+  const img = await db.higherImg.findUnique({
+    where: { id: imgId },
   })
-  if (!dare) {
-    // TODO: Error on invalid id
+
+  if (!img) {
     const imageResponse = new ImageResponse(
       (
-        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
-          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
-          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
-            <p tw="flex-grow" style={bold}>Invalid dare</p>
-          </div>
+        <div tw="w-full h-full flex flex-col bg-black items-center justify-center" style={fontStyles}> 
+          Not Found
         </div>
       ),
       { 
-        width: 1146, 
-        height: 600,
+        width: 1200, 
+        height: 1200,
         fonts: imgOpts.fonts,
       }
     );
-  
+
     // Set the cache control headers to ensure the image is not cached
     imageResponse.headers.set("Cache-Control", "public, max-age=0");
-  
+
     return imageResponse;
   }
-
-  if (!dare.warpcastUrl) {
-    // TODO: Error on invalid id
-    const imageResponse = new ImageResponse(
-      (
-        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
-          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
-          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
-            <p tw="flex-grow" style={bold}>Warpcast URL not configured</p>
-          </div>
-        </div>
-      ),
-      { 
-        width: 1146, 
-        height: 600,
-        fonts: imgOpts.fonts,
-      }
-    );
-  
-    // Set the cache control headers to ensure the image is not cached
-    imageResponse.headers.set("Cache-Control", "public, max-age=0");
-  
-    return imageResponse;
-  }
-
-  const [castDetails] = await Promise.all([neynarCastDetails(dare.warpcastUrl)])
-  const goal = dare.engagementTarget;
-  const backers = castDetails.likeCount + castDetails.recastCount;
-  const fraction = Math.min(1, backers / goal);
-  const percentage = Math.floor(fraction * 100);
 
   const imageResponse = new ImageResponse(
     (
-      <div tw="w-full h-full flex flex-col" style={fontStyles}> 
-        <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
-        <div tw="w-full h-full flex flex-col justify-between p-10">
-          <div tw="flex items-center" style={{fontFamily: "sf-rounded-bold"}}>
-            <img tw="w-20 h-20 rounded-full mr-3" src={castDetails.authorPfp} />
-            <div tw="flex">@{castDetails.authorUsername} dares to:</div>
-          </div>
-          <div tw="flex items-center">
-            <div tw="text-[60px] pr-16 flex" style={bold}>&quot;{dare.title}&quot;</div>
-            <img tw="h-[300px] rounded-lg" src={dare.img} />
-          </div>
-          <div tw="flex flex-col text-[30px]">
-            <div tw="flex justify-between items-end">
-              <div tw="flex flex-col">
-                <div tw="text-[40px] flex" style={bold}>{percentage}% to goal ({goal} backers)</div>
-                <div tw="flex" style={bold} >React to this cast to back @{castDetails.authorUsername}</div>
-              </div>
-              <div tw="flex flex-col items-end">
-                <div tw="flex" style={bold}>{backers} / {goal} backers</div>
-                {/* <div>backed by @bob, @jane and 130 others</div> */}
-              </div>
-            </div>
-            <div style={{marginBottom: "10px", height: "20px", position: 'relative', display: 'flex', boxSizing: 'border-box'}}>
-              <div tw="rounded-lg" style={{position: 'absolute', top: '0', left: '0', height: '20px', width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.2)'}}></div>
-              <div tw="rounded-lg" style={{position: 'absolute', top: '0', left: '0', height: '20px', width: `${percentage}%`, background: 'linear-gradient(90deg, rgba(255,154,0,1) 0%, rgba(255,184,0,1) 49%, rgba(255,0,194,1) 100%)'}}></div>
-            </div>
-          </div>
-        </div>
+      <div tw="w-full h-full flex flex-col items-center justify-center relative" style={fontStyles}> 
+        <img src={img.img} tw="w-full h-full absolute top-0 left-0" style={{ objectFit: 'cover' }} />
+        <img src={`${appUrl()}/arrow.png`} tw="w-full h-full absolute top-0 left-0" style={{ objectFit: 'contain' }} />
       </div>
     ),
     { 
-      width: 1146, 
-      height: 600,
+      width: 1200, 
+      height: 1200,
       fonts: imgOpts.fonts,
     }
   );
- 
+
   // Set the cache control headers to ensure the image is not cached
-  imageResponse.headers.set("Cache-Control", "public, max-age=60");
- 
+  imageResponse.headers.set("Cache-Control", "public, max-age=0");
+
   return imageResponse;
-  } catch(e: any) {
-    console.log(e)
-    // TODO: Error on invalid id
-    const imageResponse = new ImageResponse(
-      (
-        <div tw="w-full h-full flex flex-col" style={fontStyles}> 
-          <img src={`${appUrl()}/bg2.png`} tw="absolute top-0 left-0 bottom-0 right-0 w-full h-full" />
-          <div tw="w-full h-full flex flex-col items-center justify-center p-10">
-            <p tw="flex-grow" style={bold}>Internal error</p>
-          </div>
-        </div>
-      ),
-      { 
-        width: 1146, 
-        height: 600,
-        fonts: imgOpts.fonts,
-      }
-    );
-  
-    // Set the cache control headers to ensure the image is not cached
-    imageResponse.headers.set("Cache-Control", "public, max-age=0");
-  
-    return imageResponse;
-  }
 }
