@@ -44,7 +44,7 @@ const handleRequest = frames(async (ctx) => {
     return {
       image: `/images/my-image?randomInt=${Math.random()}&imgId=${id}`,
       buttons: [
-        <Button action="post">
+        <Button action="link" target={`https://warpcast.com/~/compose?text=higher&embeds[]=${appUrl()}/img/${id}`}>
           Share
         </Button>,
         <Button action="post" target={{ query: { gen: 'y' }}}>
