@@ -48,7 +48,10 @@ const handleRequest = frames(async (ctx) => {
           Share
         </Button>,
         <Button action="post" target={{ query: { gen: 'y' }}}>
-          Generate
+          Create your own
+        </Button>,
+        <Button action="link" target={`https://warpcast.com/~/add-cast-action?url=${appUrl()}/action`}>
+          Add cast action
         </Button>,
       ],
       imageOptions: {
@@ -89,7 +92,10 @@ const handleRequest = frames(async (ctx) => {
           Share
         </Button>,
         <Button action="post" target={{query: {gen: 'y'}}}>
-          Generate Another
+          Create another
+        </Button>,
+        <Button action="link" target={`https://warpcast.com/~/add-cast-action?url=${appUrl()}/action`}>
+          Add cast action
         </Button>,
       ],
       imageOptions: {
