@@ -37,9 +37,9 @@ type MessagePayload = {
 
 export async function GET() {
   return NextResponse.json({
-    "name": "Make Higher",
+    "name": "Higher remix",
     "icon": "flame",
-    "description": "Turn any image into a higher image.",
+    "description": "Add the arrow to any image cast and share in-frame",
     "aboutUrl": "https://ntik.me",
     "postUrl": "https://frames.ntik.me/action",
     "action": {
