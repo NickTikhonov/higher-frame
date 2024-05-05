@@ -37,10 +37,10 @@ type MessagePayload = {
 
 export async function GET() {
   return NextResponse.json({
-    "name": "Higher remix",
+    "name": "Higher remix ↑",
     "icon": "flame",
     "description": "Add the arrow to any image cast and share in-frame",
-    "aboutUrl": "https://ntik.me",
+    "aboutUrl": "https://warpcast.com/nt/0xfd32d8b7",
     "postUrl": "https://frames.ntik.me/action",
     "action": {
     "type": "post"
